@@ -30,13 +30,16 @@ public class SearchJavascriptInterface {
     }
 
     @JavascriptInterface
-    public String searchContact(String pattern, int page) {
+    public String searchPrevPageContact() {
         SQLiteDatabase db = new ContactDBHelper(context).getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM people WHERE `name` LIKE '%" + pattern + "%' LIMIT 4 OFFSET " + String.valueOf((1 + page) * 3), null);
-        ArrayList myArrList = new ArrayList<HashMap<String, String>>();
         SharedPreferences sPref = context.getSharedPreferences("ContactNotePrefs", Context.MODE_PRIVATE);
+        String pattern = sPref.getString("Pattern", "");
+        int page = sPref.getInt("Page", 0) - 1;
+        Cursor cursor = db.rawQuery("SELECT * FROM people WHERE `name` LIKE '%" + pattern + "%' LIMIT 4 OFFSET " + String.valueOf(page * 4), null);
+        ArrayList myArrList = new ArrayList<HashMap<String, String>>();
 
         SharedPreferences.Editor ed = sPref.edit();
+        ed.putInt("Page", page);
 
         String forRet = "";
 
@@ -55,20 +58,15 @@ public class SearchJavascriptInterface {
 
             int pageCount = cursor.getCount();
             if(page < pageCount)
-                forRet += "<div>" + "Next" + "</div>";
+                forRet += "<div onClick='nextButton();'>" + "Next" + "</div>";
             if(page > 0)
-                forRet += "<div>" + "Prev" + "</div>";
+                forRet += "<div onClick='prevButton();'>" + "Prev" + "</div>";
 
         }
 
         ed.putString("Output", forRet);
         ed.commit();
 
-
-        /*
-        for (Object z : myArrList) {
-            forRet += "<tr><td>" + ((HashMap<String, String>)z)..toString() + "</td></tr>";
-        }*/
 
         forRet += "";
 
@@ -77,26 +75,77 @@ public class SearchJavascriptInterface {
     }
 
     @JavascriptInterface
-    public String searchContact(String pattern) {
+    public String searchNextPageContact() {
         SQLiteDatabase db = new ContactDBHelper(context).getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM people WHERE `name` LIKE '%" + pattern + "%'", null);
-        ArrayList myArrList = new ArrayList<HashMap<String, String>>();
         SharedPreferences sPref = context.getSharedPreferences("ContactNotePrefs", Context.MODE_PRIVATE);
+        String pattern = sPref.getString("Pattern", "");
+        int page = 1 + sPref.getInt("Page", 0);
+        Cursor cursor = db.rawQuery("SELECT * FROM people WHERE `name` LIKE '%" + pattern + "%' LIMIT 4 OFFSET " + String.valueOf(page * 4), null);
+        ArrayList myArrList = new ArrayList<HashMap<String, String>>();
 
         SharedPreferences.Editor ed = sPref.edit();
+        ed.putInt("Page", page);
 
         String forRet = "";
 
         if (cursor != null){
             cursor.moveToFirst();
-            int i = 0;
-            Map map;
-            while (cursor.moveToNext()){
-                forRet += cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div><hr/>";
+            Boolean i = Boolean.FALSE;
+            do{
+                if (i)
+                    forRet += "<div style = 'background : yellow'>" + cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div>";
+                else
+                    forRet += "<div style = 'background : blue'>" + cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div>";
+                i = !i;
             }
+            while (cursor.moveToNext());
+
+
+            int pageCount = cursor.getCount();
+            if(page < pageCount)
+                forRet += "<div onClick='nextButton();'>" + "Next" + "</div>";
+            if(page > 0)
+                forRet += "<div onClick='prevButton();'>" + "Prev" + "</div>";
 
         }
 
+        ed.putString("Output", forRet);
+        ed.commit();
+
+
+        return forRet;
+    }
+
+    @JavascriptInterface
+    public String searchContact(String pattern) {
+        SQLiteDatabase db = new ContactDBHelper(context).getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM people WHERE `name` LIKE '%" + pattern + "%' LIMIT 4", null);
+        ArrayList myArrList = new ArrayList<HashMap<String, String>>();
+        SharedPreferences sPref = context.getSharedPreferences("ContactNotePrefs", Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor ed = sPref.edit();
+        ed.putInt("Page", 0);
+
+        String forRet = "";
+
+        if (cursor != null){
+            cursor.moveToFirst();
+            Boolean i = Boolean.FALSE;
+            do{
+                if (i)
+                    forRet += "<div style = 'background : yellow'>" + cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div>";
+                else
+                    forRet += "<div style = 'background : blue'>" + cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div>";
+                i = !i;
+            }
+            while (cursor.moveToNext());
+
+
+            forRet += "<div>" + "Next" + "</div>";
+
+        }
+
+        ed.putString("Pattern", pattern);
         ed.putString("Output", forRet);
         ed.commit();
 

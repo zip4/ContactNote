@@ -7,7 +7,6 @@
 		    document.getElementById('ifYes').style.display = 'none';
 		    document.getElementById('ifNo').style.display = 'none';
 		}
-
 		function yesnoCheck() {
 		    if (document.getElementById('yesCheck').checked) {
 		        document.getElementById('ifYes').style.display = 'block';
@@ -22,11 +21,10 @@
 		        document.getElementById('ifYes').style.display = 'block';
 		   }
 		}
-
 		function simpleAlert(){
 		    if (document.getElementById('yesCheck').checked){
 		    	var a=document.mainform.inputName.value;
-			<!--alert(a);-->
+			alert(a);
 		    }
 		    if (document.getElementById('noCheck').checked) {
 		    	var b=document.mainform.inputPhone.value;
@@ -35,12 +33,9 @@
 		    if ((document.getElementById('yesCheck').checked == false) && (document.getElementById('noCheck').checked == false)) {
                     	alert("input value");
 		    }
-
-			<!--alert(document.write);-->
-			if (search) {
-				result = search.searchContact(a, 0);
-				<!--alert(result);-->
-				document.getElementsByTagName('body')[0].innerHTML = result;
+			<!--alert(search.searchContact('Mik'));-->
+		    if (search) {
+				alert(search.searchContact(a));
 			}
 		}
 
@@ -51,20 +46,19 @@
 			alert(document.getElementById('searchForm'));
 			document.getElementById('searchForm').style.display = 'none';
 		}
-
 	</script>
 </head>
 <body>
-<form name="mainform" method="post" id="searchForm">
+<form name="mainform" method="post">
 	<div class="radiogroup">
 		<div class="label">Select search type</div>
 		<ul class="radio">
-				<input type="radio" onclick="javascript:yesnoCheck();" name="yesno" id="bothCheck"/><label for="bothCheck">by contact name and phone number</label>
+			<input type="radio" onclick="javascript:yesnoCheck();" name="yesno" id="bothCheck"/><label for="bothCheck">by contact name and phone number</label>
 			<p>
 				<input type="radio" onclick="javascript:yesnoCheck();" name="yesno" id="yesCheck"/><label for="yesCheck">by contact name</label>
 			<p>
 				<input type="radio" onclick="javascript:yesnoCheck();" name="yesno" id="noCheck"/><label for="noCheck">by phone number</label>
-			</ul>
+		</ul>
 	</div>
 
 	<div id="ifYes" style="display:none">
