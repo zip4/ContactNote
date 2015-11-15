@@ -21,6 +21,15 @@
 		        document.getElementById('ifYes').style.display = 'block';
 		   }
 		}
+
+		function nextButton(){
+			alert(search.searchNextPageContact());
+		}
+
+		function prevButton(){
+			alert(search.searchPrevPageContact());
+		}
+
 		function simpleAlert(){
 		    if (document.getElementById('yesCheck').checked){
 		    	var a=document.mainform.inputName.value;

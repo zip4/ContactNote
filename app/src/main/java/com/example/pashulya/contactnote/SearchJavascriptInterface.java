@@ -109,6 +109,8 @@ public class SearchJavascriptInterface {
 
         }
 
+        ed.clear();
+        ed.commit();
         ed.putString("Output", forRet);
         ed.commit();
 
@@ -140,8 +142,9 @@ public class SearchJavascriptInterface {
             }
             while (cursor.moveToNext());
 
+            forRet += "<form name='mainform1' method='post'><input type='submit' value='Next' onClick='nextButton();'></form>";
 
-            forRet += "<div>" + "Next" + "</div>";
+            //forRet += "<div onClick='nextButton();'>" + "Next" + "</div>";
 
         }
 
