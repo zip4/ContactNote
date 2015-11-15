@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Тег INPUT</title>
+</head>
+<body>
+<form name="test" method="post" action="input1.php">
+    <div class="radiogroup">
+        <div class="label">Select search type</div>
+        <ul class="radio">
+            <input type="radio" name="crust" id="crust1" value="deep" checked/><label for="crust1">by contact name</label>
+            <p>
+                <input type="radio" name="crust" id="crust2" value="thick" /><label for="crust2">by phone number</label>
+        </ul>
+    </div>
+    <p>
+        Введите имя:
+    <p><input type="text" size="13"></p>
+    <p>
+        Введите номер в формате 0ХХ-ХХХ-ХХ-ХХ:
+    <p><input type="tel" name="tel" pattern="0[0-9]{2}-[0-9]{3}-[0-9]{2}-[0-9]{2}"></p>
+    <p><input type="submit" value="Отправить"></p>
+</form>
+</body>
+</html>
