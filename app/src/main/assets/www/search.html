@@ -26,7 +26,7 @@
 		function simpleAlert(){
 		    if (document.getElementById('yesCheck').checked){
 		    	var a=document.mainform.inputName.value;
-			alert(a);
+			<!--alert(a);-->
 		    }
 		    if (document.getElementById('noCheck').checked) {
 		    	var b=document.mainform.inputPhone.value;
@@ -38,18 +38,24 @@
 
 			<!--alert(document.write);-->
 			if (search) {
-				result = search.searchContact(a);
+				result = search.searchContact(a, 2);
 				<!--alert(result);-->
 				document.getElementsByTagName('body')[0].innerHTML = result;
 			}
 		}
 
 		result = search.getSearchResult();
-		alert(search.getSearchResult())
+
+		if (result) {
+			document.write(result);
+			alert(document.getElementById('searchForm'));
+			document.getElementById('searchForm').style.display = 'none';
+		}
+
 	</script>
 </head>
 <body>
-<form name="mainform" method="post">
+<form name="mainform" method="post" id="searchForm">
 	<div class="radiogroup">
 		<div class="label">Select search type</div>
 		<ul class="radio">
