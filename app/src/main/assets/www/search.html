@@ -36,11 +36,16 @@
                     	alert("input value");
 		    }
 
-			<!--alert(search.searchContact('Mik'));-->
-		    if (search) {
-				alert(search.searchContact(a));
+			<!--alert(document.write);-->
+			if (search) {
+				result = search.searchContact(a);
+				<!--alert(result);-->
+				document.getElementsByTagName('body')[0].innerHTML = result;
 			}
 		}
+
+		result = search.getSearchResult();
+		alert(search.getSearchResult())
 	</script>
 </head>
 <body>

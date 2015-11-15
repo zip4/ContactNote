@@ -1,6 +1,7 @@
 package com.example.pashulya.contactnote;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -22,10 +23,20 @@ public class SearchJavascriptInterface {
     }
 
     @JavascriptInterface
+    public String getSearchResult()
+    {
+        SharedPreferences sPref = context.getSharedPreferences("ContactNotePrefs",Context.MODE_PRIVATE);
+        return sPref.getString("Output", "");
+    }
+
+    @JavascriptInterface
     public String searchContact(String pattern) {
         SQLiteDatabase db = new ContactDBHelper(context).getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM people WHERE `name` LIKE '%" + pattern + "%'", null);
         ArrayList myArrList = new ArrayList<HashMap<String, String>>();
+        SharedPreferences sPref = context.getSharedPreferences("ContactNotePrefs", Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor ed = sPref.edit();
 
         String forRet = "";
 
@@ -34,16 +45,11 @@ public class SearchJavascriptInterface {
             int i = 0;
             Map map;
             while (cursor.moveToNext()){
-                //map = new HashMap<>();
-                //map.
-                //map.put("Name", cursor.getString(1));
-                //map.put("Phone", cursor.getString(2));
-
                 forRet += cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div><hr/>";
-
-                //myArrList.add(map);
             }
         }
+        ed.putString("Output", forRet);
+        ed.commit();
 
 
         /*
