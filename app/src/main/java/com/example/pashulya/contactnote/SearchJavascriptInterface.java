@@ -30,9 +30,9 @@ public class SearchJavascriptInterface {
     }
 
     @JavascriptInterface
-    public String searchContact(String pattern, Integer page) {
+    public String searchContact(String pattern, int page) {
         SQLiteDatabase db = new ContactDBHelper(context).getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM people WHERE `name` LIKE '%" + pattern + "%'", null);
+        Cursor cursor = db.rawQuery("SELECT * FROM people WHERE `name` LIKE '%" + pattern + "%' LIMIT 4 OFFSET " + String.valueOf((1 + page) * 3), null);
         ArrayList myArrList = new ArrayList<HashMap<String, String>>();
         SharedPreferences sPref = context.getSharedPreferences("ContactNotePrefs", Context.MODE_PRIVATE);
 
@@ -42,19 +42,22 @@ public class SearchJavascriptInterface {
 
         if (cursor != null){
             cursor.moveToFirst();
-            int i = 0;
-            Map map;
-            while (cursor.moveToNext()){
-                forRet += cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div><hr/>";
+            Boolean i = Boolean.FALSE;
+            do{
+                if (i)
+                    forRet += "<div style = 'background : yellow'>" + cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div>";
+                else
+                    forRet += "<div style = 'background : blue'>" + cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div>";
+                i = !i;
             }
+            while (cursor.moveToNext());
 
-            /*
+
             int pageCount = cursor.getCount();
             if(page < pageCount)
                 forRet += "<div>" + "Next" + "</div>";
             if(page > 0)
                 forRet += "<div>" + "Prev" + "</div>";
-                */
 
         }
 
