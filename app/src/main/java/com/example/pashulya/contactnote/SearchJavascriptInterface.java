@@ -8,6 +8,7 @@ import android.webkit.JavascriptInterface;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Pashulya on 15.11.2015.
@@ -26,22 +27,33 @@ public class SearchJavascriptInterface {
         Cursor cursor = db.rawQuery("SELECT * FROM people WHERE `name` LIKE '%" + pattern + "%'", null);
         ArrayList myArrList = new ArrayList<HashMap<String, String>>();
 
+        String forRet = "";
+
         if (cursor != null){
             cursor.moveToFirst();
             int i = 0;
-            HashMap map;
+            Map map;
             while (cursor.moveToNext()){
-                map = new HashMap<>();
-                map.put("Name", cursor.getString(1));
-                map.put("Phone", cursor.getString(2));
-                myArrList.add(map);
+                //map = new HashMap<>();
+                //map.
+                //map.put("Name", cursor.getString(1));
+                //map.put("Phone", cursor.getString(2));
+
+                forRet += cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div><hr/>";
+
+                //myArrList.add(map);
             }
         }
 
-        do {
 
-        }
+        /*
+        for (Object z : myArrList) {
+            forRet += "<tr><td>" + ((HashMap<String, String>)z)..toString() + "</td></tr>";
+        }*/
 
-        return myArrList.toString();
+        forRet += "";
+
+        //return myArrList.toString();
+        return forRet;
     }
 }
