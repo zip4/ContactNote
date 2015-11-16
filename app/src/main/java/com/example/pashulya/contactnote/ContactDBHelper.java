@@ -18,13 +18,13 @@ public class ContactDBHelper extends SQLiteOpenHelper {
     public static final String NAME = "name";
     public static final String PHONE = "phone";
 
-    private String[] names = {"Александр", "Василий", "Евгений", "Иван", "Кирилл", "Роман", "Ярослав", "Mike", "James"};
-    private String[] phone_code = {"050", "063", "066", "067", "093", "095", "096", "097", "098"};
+    private String[] names = {"Alex", "John", "Bob", "Ivan", "Sam", "Jack", "Bill", "Mike", "James"};
+    private String[] phone_code = {"050", "063", "066", "067", "073", "093", "095", "096", "097", "098"};
 
     private Context context;
 
     public ContactDBHelper(Context context) {
-        super(context, DB_CONTACTS, null, 12);
+        super(context, DB_CONTACTS, null, 14);
         this.context = context;
     }
 

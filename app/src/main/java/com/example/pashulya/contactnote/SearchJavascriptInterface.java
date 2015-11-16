@@ -7,8 +7,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,6 +22,9 @@ import java.util.Map;
  */
 
 public class SearchJavascriptInterface {
+    public static final int NAME_COLUMN = 1;
+    public static final int PHONE_COLUMN = 2;
+
     private Context context;
 
     public SearchJavascriptInterface(Context context) {
@@ -23,144 +32,85 @@ public class SearchJavascriptInterface {
     }
 
     @JavascriptInterface
-    public String getSearchResult()
-    {
-        SharedPreferences sPref = context.getSharedPreferences("ContactNotePrefs",Context.MODE_PRIVATE);
-        return sPref.getString("Output", "");
+     public String getContactsByName(String name, int limit, int offset) throws JSONException {
+        SQLiteDatabase db = new ContactDBHelper(context).getReadableDatabase();
+
+        Cursor countPeopleCursor = db.rawQuery("SELECT count(_id) FROM people WHERE `name` LIKE '" + name + "%'", null);
+        countPeopleCursor.moveToFirst();
+        int countPeople = countPeopleCursor.getInt(0);
+        countPeopleCursor.close();
+
+        Cursor peopleCursor = db.rawQuery("SELECT _id, name, phone FROM people WHERE `name` LIKE '" + name + "%' ORDER BY name, phone LIMIT " + limit + " OFFSET " + offset, null);
+
+        List<Map<String, String>> results = new ArrayList<Map<String,String>>();
+        while (peopleCursor.moveToNext()) {
+            Map<String, String> entry = new HashMap<>();
+            entry.put("name", peopleCursor.getString(NAME_COLUMN));
+            entry.put("phone", peopleCursor.getString(PHONE_COLUMN));
+            results.add(entry);
+        }
+        peopleCursor.close();
+
+        return toJson(results, countPeople, limit, offset);
     }
 
     @JavascriptInterface
-    public String searchPrevPageContact() {
+    public String getContactsByPhone(String phone, int limit, int offset) throws JSONException {
         SQLiteDatabase db = new ContactDBHelper(context).getReadableDatabase();
-        SharedPreferences sPref = context.getSharedPreferences("ContactNotePrefs", Context.MODE_PRIVATE);
-        String pattern = sPref.getString("Pattern", "");
-        int page = sPref.getInt("Page", 0) - 1;
-        Cursor cursor = db.rawQuery("SELECT * FROM people WHERE `name` LIKE '%" + pattern + "%' LIMIT 4 OFFSET " + String.valueOf(page * 4), null);
-        ArrayList myArrList = new ArrayList<HashMap<String, String>>();
 
-        SharedPreferences.Editor ed = sPref.edit();
-        ed.putInt("Page", page);
+        Cursor countPeopleCursor = db.rawQuery("SELECT count(_id) FROM people WHERE `phone` LIKE '" + phone + "%'", null);
+        countPeopleCursor.moveToFirst();
+        int countPeople = countPeopleCursor.getInt(0);
+        countPeopleCursor.close();
 
-        String forRet = "";
+        Cursor peopleCursor = db.rawQuery("SELECT _id, name, phone FROM people WHERE `phone` LIKE '" + phone + "%' ORDER BY name, phone LIMIT " + limit + " OFFSET " + offset, null);
 
-        if (cursor != null){
-            cursor.moveToFirst();
-            Boolean i = Boolean.FALSE;
-            do{
-                if (i)
-                    forRet += "<div style = 'background : yellow'>" + cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div>";
-                else
-                    forRet += "<div style = 'background : blue'>" + cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div>";
-                i = !i;
-            }
-            while (cursor.moveToNext());
-
-
-            int pageCount = cursor.getCount();
-            if(page < pageCount)
-                forRet += "<div onClick='nextButton();'>" + "Next" + "</div>";
-            if(page > 0)
-                forRet += "<div onClick='prevButton();'>" + "Prev" + "</div>";
-
+        List<Map<String, String>> results = new ArrayList<Map<String,String>>();
+        while (peopleCursor.moveToNext()) {
+            Map<String, String> entry = new HashMap<>();
+            entry.put("name", peopleCursor.getString(NAME_COLUMN));
+            entry.put("phone", peopleCursor.getString(PHONE_COLUMN));
+            results.add(entry);
         }
+        peopleCursor.close();
 
-        ed.putString("Output", forRet);
-        ed.commit();
-
-
-        forRet += "";
-
-        //return myArrList.toString();
-        return forRet;
+        return toJson(results, countPeople, limit, offset);
     }
 
     @JavascriptInterface
-    public String searchNextPageContact() {
+    public String getContactsByNameAndPhone(String name, String phone, int limit, int offset) throws JSONException {
         SQLiteDatabase db = new ContactDBHelper(context).getReadableDatabase();
-        SharedPreferences sPref = context.getSharedPreferences("ContactNotePrefs", Context.MODE_PRIVATE);
-        String pattern = sPref.getString("Pattern", "");
-        int page = 1 + sPref.getInt("Page", 0);
-        Cursor cursor = db.rawQuery("SELECT * FROM people WHERE `name` LIKE '%" + pattern + "%' LIMIT 4 OFFSET " + String.valueOf(page * 4), null);
-        ArrayList myArrList = new ArrayList<HashMap<String, String>>();
 
-        SharedPreferences.Editor ed = sPref.edit();
-        ed.putInt("Page", page);
+        Cursor countPeopleCursor = db.rawQuery("SELECT count(_id) FROM people WHERE `name` LIKE '" + name + "%' AND `phone` LIKE '" + phone + "%'", null);
+        countPeopleCursor.moveToFirst();
+        int countPeople = countPeopleCursor.getInt(0);
+        countPeopleCursor.close();
 
-        String forRet = "";
+        Cursor peopleCursor = db.rawQuery("SELECT _id, name, phone FROM people WHERE `name` LIKE '" + name + "%' AND `phone` LIKE '" + phone + "%' ORDER BY name, phone LIMIT " + limit + " OFFSET " + offset, null);
 
-        if (cursor != null){
-            cursor.moveToFirst();
-            Boolean i = Boolean.FALSE;
-            do{
-                if (i)
-                    forRet += "<div style = 'background : yellow'>" + cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div>";
-                else
-                    forRet += "<div style = 'background : blue'>" + cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div>";
-                i = !i;
-            }
-            while (cursor.moveToNext());
-
-
-            int pageCount = cursor.getCount();
-            if(page < pageCount)
-                forRet += "<div onClick='nextButton();'>" + "Next" + "</div>";
-            if(page > 0)
-                forRet += "<div onClick='prevButton();'>" + "Prev" + "</div>";
-
+        List<Map<String, String>> results = new ArrayList<Map<String,String>>();
+        while (peopleCursor.moveToNext()) {
+            Map<String, String> entry = new HashMap<>();
+            entry.put("name", peopleCursor.getString(NAME_COLUMN));
+            entry.put("phone", peopleCursor.getString(PHONE_COLUMN));
+            results.add(entry);
         }
+        peopleCursor.close();
 
-        ed.clear();
-        ed.commit();
-        ed.putString("Output", forRet);
-        ed.commit();
-
-
-        return forRet;
+        return toJson(results, countPeople, limit, offset);
     }
 
-    @JavascriptInterface
-    public String searchContact(String pattern) {
-        SQLiteDatabase db = new ContactDBHelper(context).getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT * FROM people WHERE `name` LIKE '%" + pattern + "%' LIMIT 4", null);
-        ArrayList myArrList = new ArrayList<HashMap<String, String>>();
-        SharedPreferences sPref = context.getSharedPreferences("ContactNotePrefs", Context.MODE_PRIVATE);
-
-        SharedPreferences.Editor ed = sPref.edit();
-        ed.putInt("Page", 0);
-
-        String forRet = "";
-
-        if (cursor != null){
-            cursor.moveToFirst();
-            Boolean i = Boolean.FALSE;
-            do{
-                if (i)
-                    forRet += "<div style = 'background : yellow'>" + cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div>";
-                else
-                    forRet += "<div style = 'background : blue'>" + cursor.getString(1) + "<br/>" + cursor.getString(2) + "</div>";
-                i = !i;
-            }
-            while (cursor.moveToNext());
-
-            forRet += "<form name='mainform1' method='post'><input type='submit' value='Next' onClick='nextButton();'></form>";
-
-            //forRet += "<div onClick='nextButton();'>" + "Next" + "</div>";
-
+    public String toJson(List<Map<String, String>> items, int countPeople, int limit, int offset) throws JSONException {
+        List<JSONObject> jsonObjects = new ArrayList<>(items.size());
+        for (Map<String, String> item : items) {
+            jsonObjects.add(new JSONObject(item));
         }
 
-        ed.putString("Pattern", pattern);
-        ed.putString("Output", forRet);
-        ed.commit();
-
-
-        /*
-        for (Object z : myArrList) {
-            forRet += "<tr><td>" + ((HashMap<String, String>)z)..toString() + "</td></tr>";
-        }*/
-
-        forRet += "";
-
-        //return myArrList.toString();
-        return forRet;
+        JSONObject result = new JSONObject();
+        result.put("items", new JSONArray(jsonObjects));
+        result.put("total", countPeople);
+        result.put("limit", limit);
+        result.put("offset", offset);
+        return result.toString();
     }
 }
